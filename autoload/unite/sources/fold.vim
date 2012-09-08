@@ -25,7 +25,7 @@ endfunction
 
 function! s:foldlist(bufnr)
 	if &foldmethod == 'marker'
-		return filter(map(getbufline(a:bufnr, 1, "$"), '{ "line" : v:val, "lnum" : v:key+1 }'), "v:val.line =~ '^\".*'.split(&foldmarker, ',')[0]")
+		return filter(map(getbufline(a:bufnr, 1, "$"), '{ "line" : v:val, "lnum" : v:key+1 }'), "v:val.line =~ '\".*'.split(&foldmarker, ',')[0]")
 	else
 		let orig_foldenable = &foldenable
 		let orig_cursor = getpos('.')
@@ -60,7 +60,11 @@ function! s:foldtext(bufnr, val)
 	if has_key(a:val, 'word')
 		return a:val.word
 	else
-		return matchstr(a:val.line, "\"\\s*\\zs.*\\ze".split(&foldmarker, ",")[0])
+		let word = matchstr(a:val.line, "\"\\s*\\zs.*\\ze".split(&foldmarker, ",")[0])
+		if empty(word)
+			let word = matchstr(a:val.line, "^\\s*\\zs.*\\ze\\s*\"\\s*".split(&foldmarker, ",")[0])
+		endif
+		return word
 	end
 endfunction
 
